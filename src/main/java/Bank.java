@@ -19,7 +19,7 @@ public class Bank
         return accounts.containsKey(accNumber);
     }
 
-    public long getAllBalance(String[] accNumberArray) {
+    public long getAllBalance() {
         return accounts.values().stream().mapToLong(Account::getMoney).sum();
     }
     public Account getAccount(String accNumber){

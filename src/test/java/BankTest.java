@@ -77,7 +77,7 @@ public class BankTest {
         //
         generateAccounts(ACCOUNTS_QUANTITY, bankTestAllBalance);
         //
-        expected = bankTestAllBalance.getAllBalance(accNumbersArray);
+        expected = bankTestAllBalance.getAllBalance();
         //
         generateThreads(THREADS_QUANTITY,
                 TRANSFERS_QUANTITY,
@@ -86,7 +86,7 @@ public class BankTest {
                 bankTestAllBalance,
                 true);
         //
-        Assert.assertEquals(expected, bankTestAllBalance.getAllBalance(accNumbersArray));
+        Assert.assertEquals(expected, bankTestAllBalance.getAllBalance());
     }
 
     // method for detection deadlock
