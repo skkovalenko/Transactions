@@ -11,8 +11,9 @@ import java.util.Arrays;
 
 public class BankTest {
 
-    private Bank bankTestAllBalance;
     private Bank bankTestLock;
+    private Bank bankTestAllBalance;
+    private Bank bankTestBalance;
     private double BIG_TRANSFER_PERCENT;
     private int THREADS_QUANTITY;
     private int ACCOUNTS_QUANTITY;
@@ -23,8 +24,9 @@ public class BankTest {
     private ThreadMXBean threadMXBean;
     @Before
     public void setUp() {
-        bankTestAllBalance = new Bank();
         bankTestLock = new Bank();
+        bankTestAllBalance = new Bank();
+        bankTestBalance = new Bank();
     }
 
     @After
@@ -36,14 +38,54 @@ public class BankTest {
         threads.clear();
         accNumbersArray = null;
         expected = 0;
+
+    }
+
+    @Test
+    public void getBalance() throws InterruptedException {
+        //
+        ACCOUNTS_QUANTITY = 50;
+        THREADS_QUANTITY = 30;
+        TRANSFERS_QUANTITY = 10000;
+        BIG_TRANSFER_PERCENT = 0.00001;
+        threads = new ArrayList<>();
+        //
+        generateAccounts(ACCOUNTS_QUANTITY, bankTestBalance);
+        //
+        expected = bankTestBalance.getAllBalance();
+        generateThreads(THREADS_QUANTITY,
+                TRANSFERS_QUANTITY,
+                BIG_TRANSFER_PERCENT,
+                accNumbersArray,
+                bankTestBalance,
+                false);
+        //
+        int count = 0;
+        while (count != THREADS_QUANTITY) {
+
+            long actual = 0;
+            for (String accNumber : accNumbersArray) {
+                actual = actual + bankTestBalance.getBalance(accNumber);
+            }
+            System.out.println(expected + " " + actual);
+            Assert.assertEquals(expected, actual);
+            for (Thread thread : threads) {
+                if (!thread.isAlive()) {
+                    count++;
+                    if(count == THREADS_QUANTITY){
+                        break;
+                    }
+                }
+            }
+        }
     }
 
     @Test
     public void bankTestLock() throws InterruptedException {
         //
         ACCOUNTS_QUANTITY = 3;
-        THREADS_QUANTITY = 20;
-        TRANSFERS_QUANTITY = 10000;
+        THREADS_QUANTITY = 60;
+        TRANSFERS_QUANTITY = 20000;
         BIG_TRANSFER_PERCENT = 0.00001;
         threads = new ArrayList<>();
         //
@@ -70,8 +112,8 @@ public class BankTest {
     public void allBalance() throws InterruptedException {
         //
         ACCOUNTS_QUANTITY = 100;
-        THREADS_QUANTITY = 10;
-        TRANSFERS_QUANTITY = 10000;
+        THREADS_QUANTITY = 20;
+        TRANSFERS_QUANTITY = 1000;
         BIG_TRANSFER_PERCENT = 0.05;
         threads = new ArrayList<>();
         //
