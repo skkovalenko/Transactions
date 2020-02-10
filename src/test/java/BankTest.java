@@ -1,8 +1,5 @@
 
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.*;
 
 import java.lang.management.ManagementFactory;
 import java.lang.management.ThreadMXBean;
@@ -61,20 +58,20 @@ public class BankTest {
                 false);
         //
         int count = 0;
-        while (count != THREADS_QUANTITY) {
+        while (count <= THREADS_QUANTITY) {
 
             long actual = 0;
             for (String accNumber : accNumbersArray) {
                 actual = actual + bankTestBalance.getBalance(accNumber);
             }
-            System.out.println(expected + " " + actual);
+            //System.out.println(expected + " " + actual);
             Assert.assertEquals(expected, actual);
             for (Thread thread : threads) {
                 if (!thread.isAlive()) {
                     count++;
-                    if(count == THREADS_QUANTITY){
+                    /*if(count == THREADS_QUANTITY){
                         break;
-                    }
+                    }*/
                 }
             }
         }

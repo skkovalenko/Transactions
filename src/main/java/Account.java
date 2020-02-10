@@ -1,13 +1,28 @@
-public class Account
+import java.util.concurrent.atomic.AtomicLong;
+
+public class Account implements Comparable<Account>
 {
-    private long money;
+    private AtomicLong money = new AtomicLong();
     private String accNumber;
     private boolean block;
 
     public Account(long money, String accNumber) {
-        this.money = money;
+        this.money.set(money);
         this.accNumber = accNumber;
         block = false;
+    }
+
+    public String getAccNumber() {
+        return accNumber;
+    }
+
+    public long getMoney() {
+        return money.get();
+    }
+
+    public boolean isBlock() {
+        //System.out.printf("account %s blocked: %s\n", accNumber, block);
+        return block;
     }
 
     public void setBlock(boolean block) {
@@ -15,24 +30,18 @@ public class Account
         this.block = block;
     }
 
-    public String getAccNumber() {
-        return accNumber;
-    }
-
-    public synchronized long getMoney() {
-        return money;
-    }
-
-    public synchronized boolean isBlock() {
-        //System.out.printf("account %s blocked: %s\n", accNumber, block);
-        return block;
-    }
     public void transferTo(long amount) {
         //System.out.printf("account %s receive amount: %s\n", accNumber, amount);
-        money = money + amount;
+        money.addAndGet(amount);
     }
+
     public void transferFrom(long amount) {
         //System.out.printf("account %s sent amount: %s\n", accNumber, amount);
-        money = money - amount;
+        money.addAndGet(-amount);
+    }
+
+    @Override
+    public int compareTo(Account o) {
+        return this.getAccNumber().compareTo(o.accNumber);
     }
 }
