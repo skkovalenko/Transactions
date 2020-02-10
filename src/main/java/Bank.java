@@ -54,6 +54,8 @@ public class Bank
      * TODO: реализовать метод. Возвращает остаток на счёте.
      */
     public  long getBalance(String accountNum) {
-        return getAccount(accountNum).getMoney();
+        synchronized (getAccount(accountNum)){
+            return getAccount(accountNum).getMoney();
+        }
     }
 }
