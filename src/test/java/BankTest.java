@@ -64,14 +64,10 @@ public class BankTest {
             for (String accNumber : accNumbersArray) {
                 actual = actual + bankTestBalance.getBalance(accNumber);
             }
-            //System.out.println(expected + " " + actual);
             Assert.assertEquals(expected, actual);
             for (Thread thread : threads) {
                 if (!thread.isAlive()) {
                     count++;
-                    /*if(count == THREADS_QUANTITY){
-                        break;
-                    }*/
                 }
             }
         }

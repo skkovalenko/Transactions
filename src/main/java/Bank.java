@@ -1,9 +1,9 @@
-import java.util.HashMap;
 import java.util.Random;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class Bank
 {
-    private HashMap<String, Account> accounts = new HashMap<>();
+    private ConcurrentHashMap<String, Account> accounts = new ConcurrentHashMap<>();
     private final Random random = new Random();
 
     public synchronized boolean isFraud(String fromAccountNum, String toAccountNum, long amount) throws InterruptedException {
@@ -35,16 +35,18 @@ public class Bank
      */
 
     public void transfer(String fromAccountNum, String toAccountNum, long amount) throws InterruptedException {
-        synchronized (getAccount(fromAccountNum).compareTo(getAccount(toAccountNum)) > 0 ? getAccount(fromAccountNum) : getAccount(toAccountNum)){
-            synchronized (getAccount(fromAccountNum).compareTo(getAccount(toAccountNum)) < 0 ? getAccount(fromAccountNum) : getAccount(toAccountNum)){
-                if((!getAccount(fromAccountNum).isBlock() && !getAccount(toAccountNum).isBlock())
-                        && (getAccount(fromAccountNum).getMoney() >= amount)){
-                    getAccount(fromAccountNum).transferFrom(amount);
-                    getAccount(toAccountNum).transferTo(amount);
+        Account accFrom = getAccount(fromAccountNum);
+        Account accTo = getAccount(toAccountNum);
+        synchronized (accFrom.compareTo(accTo) > 0 ? accFrom : accTo){
+            synchronized (accFrom.compareTo(accTo) < 0 ? accFrom : accTo){
+                if((!accFrom.isBlock() && !accTo.isBlock())
+                        && (accFrom.getMoney() >= amount)){
+                    accFrom.transferFrom(amount);
+                    accTo.transferTo(amount);
                     if (amount > 50000){
-                        boolean block = isFraud(getAccount(fromAccountNum).getAccNumber(), getAccount(toAccountNum).getAccNumber(), amount);
-                        getAccount(fromAccountNum).setBlock(block);
-                        getAccount(toAccountNum).setBlock(block);
+                        boolean block = isFraud(accFrom.getAccNumber(), accTo.getAccNumber(), amount);
+                        accFrom.setBlock(block);
+                        accTo.setBlock(block);
                     }
                 }
             }
@@ -53,9 +55,8 @@ public class Bank
     /**
      * TODO: реализовать метод. Возвращает остаток на счёте.
      */
-    public  long getBalance(String accountNum) {
-        synchronized (getAccount(accountNum)){
-            return getAccount(accountNum).getMoney();
-        }
+    public long getBalance(String accountNum) {
+        Account account = getAccount(accountNum);
+        return account.getMoney();
     }
 }
