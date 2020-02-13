@@ -11,10 +11,16 @@ public class BankTest {
     private Bank bankTestLock;
     private Bank bankTestAllBalance;
     private Bank bankTestBalance;
+    private Bank bankTestTwoAccount;
+    private Bank bankTestTransactionsAfterZero;
     private double BIG_TRANSFER_PERCENT;
     private int THREADS_QUANTITY;
     private int ACCOUNTS_QUANTITY;
     private int TRANSFERS_QUANTITY;
+    //for test with two accounts
+    private int AMOUNT_FIRST_ACCOUNT;
+    private int AMOUNT_SECOND_ACCOUNT;
+    //
     private String[] accNumbersArray = null;
     private ArrayList<Thread> threads;
     private long expected;
@@ -24,6 +30,8 @@ public class BankTest {
         bankTestLock = new Bank();
         bankTestAllBalance = new Bank();
         bankTestBalance = new Bank();
+        bankTestTwoAccount = new Bank();
+        bankTestTransactionsAfterZero = new Bank();
     }
 
     @After
@@ -32,45 +40,64 @@ public class BankTest {
         THREADS_QUANTITY = 0;
         TRANSFERS_QUANTITY = 0;
         BIG_TRANSFER_PERCENT = 0.0;
-        threads.clear();
+        threads = null;
         accNumbersArray = null;
         expected = 0;
+        //
+        AMOUNT_FIRST_ACCOUNT = 0;
+        AMOUNT_SECOND_ACCOUNT = 0;
 
     }
 
     @Test
-    public void getBalance() throws InterruptedException {
-        //
-        ACCOUNTS_QUANTITY = 50;
+    public void transactionAfterZero() throws InterruptedException {
+        ACCOUNTS_QUANTITY = 2;
         THREADS_QUANTITY = 30;
-        TRANSFERS_QUANTITY = 10000;
-        BIG_TRANSFER_PERCENT = 0.00001;
+        TRANSFERS_QUANTITY = 1000;
+        BIG_TRANSFER_PERCENT = 0.0000;
+        AMOUNT_FIRST_ACCOUNT = 2000;
+        AMOUNT_SECOND_ACCOUNT = 1000;
         threads = new ArrayList<>();
         //
-        generateAccounts(ACCOUNTS_QUANTITY, bankTestBalance);
+        generateAccounts(ACCOUNTS_QUANTITY, bankTestTransactionsAfterZero);
+        expected = 0;
         //
-        expected = bankTestBalance.getAllBalance();
-        generateThreads(THREADS_QUANTITY,
+        generateThreads(
+                THREADS_QUANTITY,
                 TRANSFERS_QUANTITY,
                 BIG_TRANSFER_PERCENT,
                 accNumbersArray,
-                bankTestBalance,
-                false);
-        //
-        int count = 0;
-        while (count <= THREADS_QUANTITY) {
+                bankTestTransactionsAfterZero,
+                true);
 
-            long actual = 0;
-            for (String accNumber : accNumbersArray) {
-                actual = actual + bankTestBalance.getBalance(accNumber);
-            }
-            Assert.assertEquals(expected, actual);
-            for (Thread thread : threads) {
-                if (!thread.isAlive()) {
-                    count++;
-                }
-            }
-        }
+        long actual = bankTestTransactionsAfterZero.getAccount(accNumbersArray[0]).getMoney();
+        Assert.assertEquals(expected, actual);
+    }
+
+    @Test
+    public void twoAccounts() throws InterruptedException {
+        ACCOUNTS_QUANTITY = 2;
+        THREADS_QUANTITY = 10;
+        TRANSFERS_QUANTITY = 100;
+        BIG_TRANSFER_PERCENT = 0.0000;
+        AMOUNT_FIRST_ACCOUNT = 2000;
+        AMOUNT_SECOND_ACCOUNT = 1000;
+        threads = new ArrayList<>();
+        //
+        generateAccounts(ACCOUNTS_QUANTITY, bankTestTwoAccount);
+        //
+        expected = bankTestTwoAccount.getAccount(accNumbersArray[0]).getMoney();
+        //
+        generateThreads(
+                THREADS_QUANTITY,
+                TRANSFERS_QUANTITY,
+                BIG_TRANSFER_PERCENT,
+                accNumbersArray,
+                bankTestTwoAccount,
+                true);
+
+        long actual = bankTestTwoAccount.getAccount(accNumbersArray[0]).getMoney() + THREADS_QUANTITY * TRANSFERS_QUANTITY;
+                Assert.assertEquals(expected, actual);
     }
 
     @Test
@@ -158,6 +185,17 @@ public class BankTest {
     private void generateAccounts(int ACCOUNTS_QUANTITY, Bank bank){
 
         accNumbersArray = new String[ACCOUNTS_QUANTITY];
+
+        //for test with two accounts
+        if(ACCOUNTS_QUANTITY == 2){
+            Account accountFirst = new Account(AMOUNT_FIRST_ACCOUNT, "001");
+            Account accountSecond = new Account(AMOUNT_SECOND_ACCOUNT, "002");
+            bank.putAccount(accountFirst);
+            bank.putAccount(accountSecond);
+            accNumbersArray[0] = "001";
+            accNumbersArray[1] = "002";
+            return;
+        }
 
         for (int i = 0; i < ACCOUNTS_QUANTITY; i++){
             String accNumber;

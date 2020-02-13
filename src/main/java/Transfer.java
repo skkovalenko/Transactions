@@ -30,6 +30,16 @@ public class Transfer implements Runnable {
     public void run() {
 
         for (int i = 0; i < TRANSFERS_QUANTITY; i++){
+            //for test with two accounts
+            if(bank.countAccounts() == 2){
+                try {
+                    bank.transfer("001", "002", 1);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                continue;
+            }
+            //
             //generate random account number for transfer : indexFrom and indexTo
             int indexFrom = (int)(Math.random() * (double)accNumbersArray.length);
             int indexTo = (int)(Math.random() * (double)accNumbersArray.length);

@@ -10,6 +10,9 @@ public class Bank
         Thread.sleep(1000);
         return random.nextBoolean();
     }
+    public int countAccounts(){
+        return accounts.size();
+    }
 
     public void putAccount(Account account){
         accounts.put(account.getAccNumber(), account);
@@ -22,7 +25,7 @@ public class Bank
     public long getAllBalance() {
         return accounts.values().stream().mapToLong(Account::getMoney).sum();
     }
-    private Account getAccount(String accNumber){
+    Account getAccount(String accNumber){
         return accounts.get(accNumber);
     }
 
